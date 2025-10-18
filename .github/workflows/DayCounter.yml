@@ -1,79 +1,104 @@
 name: Actualizar cuenta regresiva
 
+# Permisos explícitos para asegurar push
+permissions:
+  contents: write
+
 on:
   schedule:
-    - cron: "0 6 * * *"  # Todos los días a las 06:00 UTC
-  workflow_dispatch:      # Permite ejecutarlo manualmente
+    - cron: "0 6 * * *"
+  workflow_dispatch:
 
 jobs:
   update-countdown:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar el repositorio
+      - name: Clonar el repositorio (checkout con todo)
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Configurar Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Actualizar README con la cuenta regresiva
+      - name: Mostrar info del runner y fecha
         run: |
-          #!/usr/bin/env bash
-          set -e
+          echo "Runner date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+
+      - name: Actualizar README con la cuenta regresiva (y debug)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
 
           README="README.md"
-          
-          # === Configura las fechas ===
+
+          # === Configura las fechas (ajusta si hace falta) ===
           FECHA_AVANCES="2025-11-02"
           FECHA_EXPO="2025-11-17"
           FECHA_PROYECTO="2025-11-24"
 
+          # Fecha hoy en runner (formato YYYY-MM-DD)
           HOY=$(date +%Y-%m-%d)
 
-          # Calcula los días restantes
-          DIAS_AVANCES=$(( ( $(date -d "$FECHA_AVANCES" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
-          DIAS_EXPO=$(( ( $(date -d "$FECHA_EXPO" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
-          DIAS_PROY=$(( ( $(date -d "$FECHA_PROYECTO" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
+          # Función segura para calcular días (enteros)
+          dias_restantes() {
+            local F="$1"
+            # convertir a segundos
+            local S_F=$(date -d "$F" +%s)
+            local S_H=$(date -d "$HOY" +%s)
+            echo $(( (S_F - S_H) / 86400 ))
+          }
 
-          echo "🕒 Actualizando README..."
-          
-          # --- Aquí empieza el fragmento que añadimos ---
-          echo "# 📅 Cuenta regresiva del proyecto" > "$README"
-          echo "" >> "$README"
+          DIAS_AVANCES=$(dias_restantes "$FECHA_AVANCES" || echo 0)
+          DIAS_EXPO=$(dias_restantes "$FECHA_EXPO" || echo 0)
+          DIAS_PROY=$(dias_restantes "$FECHA_PROYECTO" || echo 0)
 
-          # Avances
-          if [ $DIAS_AVANCES -gt 0 ]; then
-            echo "$DIAS_AVANCES días para la **entrega de avances del proyecto**  " >> "$README"
-          elif [ $DIAS_AVANCES -eq 0 ]; then
-            echo "**🎯 Hoy se entrega los avances del proyecto 🎯**  " >> "$README"
-          fi
+          echo "HOY = $HOY"
+          echo "DIAS_AVANCES = $DIAS_AVANCES"
+          echo "DIAS_EXPO = $DIAS_EXPO"
+          echo "DIAS_PROY = $DIAS_PROY"
 
-          # Exposición
-          if [ $DIAS_EXPO -gt 0 ]; then
-            echo "$DIAS_EXPO días para la **exposición**  " >> "$README"
-          elif [ $DIAS_EXPO -eq 0 ]; then
-            echo "**🎤 Hoy es la exposición 🎤**  " >> "$README"
-          fi
+          # Construir contenido en una variable temporal (para debug)
+          TMP_FILE=$(mktemp)
+          {
+            echo "# 📅 Cuenta regresiva del proyecto"
+            echo ""
+            # Avances
+            if [ "$DIAS_AVANCES" -gt 0 ]; then
+              echo "$DIAS_AVANCES días para la **entrega de avances del proyecto**  "
+            elif [ "$DIAS_AVANCES" -eq 0 ]; then
+              echo "**🎯 Hoy se entrega los avances del proyecto 🎯**  "
+            fi
+            # Exposición
+            if [ "$DIAS_EXPO" -gt 0 ]; then
+              echo "$DIAS_EXPO días para la **exposición**  "
+            elif [ "$DIAS_EXPO" -eq 0 ]; then
+              echo "**🎤 Hoy es la exposición 🎤**  "
+            fi
+            # Proyecto final
+            if [ "$DIAS_PROY" -gt 0 ]; then
+              echo "$DIAS_PROY días para la **entrega del proyecto**  "
+            elif [ "$DIAS_PROY" -eq 0 ]; then
+              echo "**🚀 Hoy se entrega el proyecto final 🚀**  "
+            fi
+          } > "$TMP_FILE"
 
-          # Proyecto final
-          if [ $DIAS_PROY -gt 0 ]; then
-            echo "$DIAS_PROY días para la **entrega del proyecto**  " >> "$README"
-          elif [ $DIAS_PROY -eq 0 ]; then
-            echo "**🚀 Hoy se entrega el proyecto final 🚀**  " >> "$README"
-          fi
-          # --- Aquí termina el fragmento añadido ---
+          echo "=== Contenido que se va a escribir en $README ==="
+          cat "$TMP_FILE"
+          echo "=== Fin contenido ==="
 
-      - name: Subir cambios a GitHub
-        run: |
-          git fetch
-          if [[ -n $(git status --porcelain) ]]; then
-            git add README.md
-            git commit -m "Actualización automática de cuenta regresiva 📅"
-            git push origin HEAD:main
-          else
-            echo "No hay cambios que subir."
-          fi
+          # Sobrescribir README
+          cp "$TMP_FILE" "$README"
+          rm "$TMP_FILE"
+
+          echo "Estado git antes de add/commit:"
+          git status --porcelain || true
+          echo "Contenido de
