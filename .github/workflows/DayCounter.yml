@@ -2,8 +2,8 @@ name: Actualizar cuenta regresiva
 
 on:
   schedule:
-    - cron: "0 6 * * *"  # Se ejecuta todos los días a las 06:00 UTC
-  workflow_dispatch:      # Permite ejecutarlo manualmente también
+    - cron: "0 6 * * *"  # Todos los días a las 06:00 UTC
+  workflow_dispatch:      # Permite ejecutarlo manualmente
 
 jobs:
   update-countdown:
@@ -40,36 +40,40 @@ jobs:
           DIAS_PROY=$(( ( $(date -d "$FECHA_PROYECTO" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
 
           echo "🕒 Actualizando README..."
+          
+          # --- Aquí empieza el fragmento que añadimos ---
           echo "# 📅 Cuenta regresiva del proyecto" > "$README"
           echo "" >> "$README"
 
-          # --- Avances ---
+          # Avances
           if [ $DIAS_AVANCES -gt 0 ]; then
-            echo "$DIAS_AVANCES días para la **entrega de avances del proyecto**" >> "$README"
+            echo "$DIAS_AVANCES días para la **entrega de avances del proyecto**  " >> "$README"
           elif [ $DIAS_AVANCES -eq 0 ]; then
-            echo "**🎯 Hoy se entrega los avances del proyecto 🎯**" >> "$README"
+            echo "**🎯 Hoy se entrega los avances del proyecto 🎯**  " >> "$README"
           fi
 
-          # --- Exposición ---
+          # Exposición
           if [ $DIAS_EXPO -gt 0 ]; then
-            echo "$DIAS_EXPO días para la **exposición**" >> "$README"
+            echo "$DIAS_EXPO días para la **exposición**  " >> "$README"
           elif [ $DIAS_EXPO -eq 0 ]; then
-            echo "**🎤 Hoy es la exposición 🎤**" >> "$README"
+            echo "**🎤 Hoy es la exposición 🎤**  " >> "$README"
           fi
 
-          # --- Proyecto final ---
+          # Proyecto final
           if [ $DIAS_PROY -gt 0 ]; then
-            echo "$DIAS_PROY días para la **entrega del proyecto**" >> "$README"
+            echo "$DIAS_PROY días para la **entrega del proyecto**  " >> "$README"
           elif [ $DIAS_PROY -eq 0 ]; then
-            echo "**🚀 Hoy se entrega el proyecto final 🚀**" >> "$README"
+            echo "**🚀 Hoy se entrega el proyecto final 🚀**  " >> "$README"
           fi
+          # --- Aquí termina el fragmento añadido ---
 
       - name: Subir cambios a GitHub
         run: |
+          git fetch
           if [[ -n $(git status --porcelain) ]]; then
             git add README.md
             git commit -m "Actualización automática de cuenta regresiva 📅"
-            git push
+            git push origin HEAD:main
           else
             echo "No hay cambios que subir."
           fi
