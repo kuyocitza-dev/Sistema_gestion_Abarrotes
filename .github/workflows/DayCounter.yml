@@ -1,0 +1,75 @@
+name: Actualizar cuenta regresiva
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # Se ejecuta todos los días a las 06:00 UTC
+  workflow_dispatch:      # Permite ejecutarlo manualmente también
+
+jobs:
+  update-countdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Actualizar README con la cuenta regresiva
+        run: |
+          #!/usr/bin/env bash
+          set -e
+
+          README="README.md"
+          
+          # === Configura las fechas ===
+          FECHA_AVANCES="2025-11-02"
+          FECHA_EXPO="2025-11-17"
+          FECHA_PROYECTO="2025-11-24"
+
+          HOY=$(date +%Y-%m-%d)
+
+          # Calcula los días restantes
+          DIAS_AVANCES=$(( ( $(date -d "$FECHA_AVANCES" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
+          DIAS_EXPO=$(( ( $(date -d "$FECHA_EXPO" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
+          DIAS_PROY=$(( ( $(date -d "$FECHA_PROYECTO" +%s) - $(date -d "$HOY" +%s) ) / 86400 ))
+
+          echo "🕒 Actualizando README..."
+          echo "# 📅 Cuenta regresiva del proyecto" > "$README"
+          echo "" >> "$README"
+
+          # --- Avances ---
+          if [ $DIAS_AVANCES -gt 0 ]; then
+            echo "$DIAS_AVANCES días para la **entrega de avances del proyecto**" >> "$README"
+          elif [ $DIAS_AVANCES -eq 0 ]; then
+            echo "**🎯 Hoy se entrega los avances del proyecto 🎯**" >> "$README"
+          fi
+
+          # --- Exposición ---
+          if [ $DIAS_EXPO -gt 0 ]; then
+            echo "$DIAS_EXPO días para la **exposición**" >> "$README"
+          elif [ $DIAS_EXPO -eq 0 ]; then
+            echo "**🎤 Hoy es la exposición 🎤**" >> "$README"
+          fi
+
+          # --- Proyecto final ---
+          if [ $DIAS_PROY -gt 0 ]; then
+            echo "$DIAS_PROY días para la **entrega del proyecto**" >> "$README"
+          elif [ $DIAS_PROY -eq 0 ]; then
+            echo "**🚀 Hoy se entrega el proyecto final 🚀**" >> "$README"
+          fi
+
+      - name: Subir cambios a GitHub
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git add README.md
+            git commit -m "Actualización automática de cuenta regresiva 📅"
+            git push
+          else
+            echo "No hay cambios que subir."
+          fi
