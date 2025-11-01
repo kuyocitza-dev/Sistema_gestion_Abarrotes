@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
-// Prueba de commit y push desde IntelliJ
+// Prueba de commit y push desde IntelliJ22
 
 
 public class Main {
