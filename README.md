@@ -1,5 +1,5 @@
 # 📅 Cuenta regresiva del proyecto
 
-1 días para la **entrega de avances del proyecto**  
-16 días para la **exposición**  
-23 días para la **entrega del proyecto final**  
+**🎯 Hoy se entrega los avances del proyecto 🎯**  
+15 días para la **exposición**  
+22 días para la **entrega del proyecto final**  
