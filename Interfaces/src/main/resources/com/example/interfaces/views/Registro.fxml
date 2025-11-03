@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CONTROLLER_NAME">
+   <children>
+      <VBox alignment="CENTER" layoutX="250.0" layoutY="100.0" prefHeight="400.0" prefWidth="300.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label text="Registro de usuario" />
+            <TextField promptText="Nombre completo" />
+            <TextField promptText="Correo electronico" />
+            <TextField promptText="Usuario" />
+            <PasswordField promptText="Contraseña" />
+            <PasswordField promptText="Confirmar contraseña" />
+            <Button mnemonicParsing="false" text="Registrar cuenta" />
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
