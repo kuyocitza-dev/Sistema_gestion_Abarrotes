@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"clientes"},{"l":"inventario"},{"l":"PromocionesDescuentos"},{"l":"sistemaGestionAbarrotes"},{"l":"test.java.sistemaGestionAbarrotes"},{"l":"ventas"}];updateSearchResults();
