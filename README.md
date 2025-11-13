@@ -1,4 +1,4 @@
 # 📅 Cuenta regresiva del proyecto
 
-5 días para la **exposición**  
-12 días para la **entrega del proyecto final**  
+4 días para la **exposición**  
+11 días para la **entrega del proyecto final**  
