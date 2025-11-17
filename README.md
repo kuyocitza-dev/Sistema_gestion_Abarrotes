@@ -1,4 +1,4 @@
 # 📅 Cuenta regresiva del proyecto
 
-1 días para la **exposición**  
-8 días para la **entrega del proyecto final**  
+**🎤 Hoy es la exposición 🎤**  
+7 días para la **entrega del proyecto final**  
