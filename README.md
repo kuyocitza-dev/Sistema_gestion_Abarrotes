@@ -1,3 +1,3 @@
 # 📅 Cuenta regresiva del proyecto
 
-5 días para la **entrega del proyecto final**  
+4 días para la **entrega del proyecto final**  
